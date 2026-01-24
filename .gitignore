@@ -1,6 +1,10 @@
 # Binaries
 *.exe
 
+# Temporary files
+*~
+*.swp
+
 # Logs
 *.log
 
