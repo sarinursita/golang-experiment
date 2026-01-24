@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -242,6 +243,18 @@ func main() {
 		}
 	})
 
+	// Root welcome message
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Welcome to Kasir API! silakan cek /health /api/products atau /api/categories",
+		})
+	})
+
 	// GET localhost:8080/api/products
 	// POST localhost:8080/api/products
 	http.HandleFunc("/api/products", func(w http.ResponseWriter, r *http.Request) {
@@ -301,9 +314,15 @@ func main() {
 		})
 	})
 
-	fmt.Println("Server running di localhost:8080")
+	// Ambil Port dari Environment Variable (penting buat deployment kayak Zeabur/Railway)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // default kalau di lokal
+	}
 
-	err := http.ListenAndServe(":8080", nil)
+	fmt.Printf("Server running di localhost:%s\n", port)
+
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		fmt.Println("gagal running server")
 	}
