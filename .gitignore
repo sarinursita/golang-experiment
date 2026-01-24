@@ -1,0 +1,6 @@
+# Binaries
+*.exe
+/kasir-api
+
+# Logs
+*.log
