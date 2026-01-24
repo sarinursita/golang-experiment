@@ -317,13 +317,14 @@ func main() {
 	// Ambil Port dari Environment Variable (penting buat deployment kayak Zeabur/Railway)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // default kalau di lokal
+		port = "8080" // default buat lokal atau kalau Zeabur gak kasih PORT
 	}
 
-	fmt.Printf("Server running di localhost:%s\n", port)
+	fmt.Printf("Server siap! Berjalan di port: %s\n", port)
 
-	err := http.ListenAndServe(":"+port, nil)
+	// Kita pake "0.0.0.0" supaya bisa diakses dari luar container/server
+	err := http.ListenAndServe("0.0.0.0:"+port, nil)
 	if err != nil {
-		fmt.Println("gagal running server")
+		fmt.Printf("Waduh, server gagal jalan: %v\n", err)
 	}
 }
