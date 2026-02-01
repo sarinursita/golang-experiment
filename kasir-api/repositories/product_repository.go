@@ -17,8 +17,8 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 	query := `
 		SELECT p.id, p.name, p.price, p.stock, p.category_id, COALESCE(c.name, '') as category_name
-		FROM products p
-		LEFT JOIN categories c ON p.category_id = c.id
+		FROM "Product" p
+		LEFT JOIN "Category" c ON p.category_id = c.id
 	`
 	rows, err := repo.db.Query(query)
 	if err != nil {
@@ -40,7 +40,7 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 }
 
 func (repo *ProductRepository) Create(product *models.Product) error {
-	query := "INSERT INTO products (name, price, stock, category_id) VALUES ($1, $2, $3, $4) RETURNING id"
+	query := `INSERT INTO "Product" (name, price, stock, category_id) VALUES ($1, $2, $3, $4) RETURNING id`
 	err := repo.db.QueryRow(query, product.Name, product.Price, product.Stock, product.CategoryID).Scan(&product.ID)
 	return err
 }
@@ -49,8 +49,8 @@ func (repo *ProductRepository) Create(product *models.Product) error {
 func (repo *ProductRepository) GetByID(id int) (*models.Product, error) {
 	query := `
 		SELECT p.id, p.name, p.price, p.stock, p.category_id, COALESCE(c.name, '') as category_name
-		FROM products p
-		LEFT JOIN categories c ON p.category_id = c.id
+		FROM "Product" p
+		LEFT JOIN "Category" c ON p.category_id = c.id
 		WHERE p.id = $1
 	`
 
@@ -67,7 +67,7 @@ func (repo *ProductRepository) GetByID(id int) (*models.Product, error) {
 }
 
 func (repo *ProductRepository) Update(product *models.Product) error {
-	query := "UPDATE products SET name = $1, price = $2, stock = $3, category_id = $4 WHERE id = $5"
+	query := `UPDATE "Product" SET name = $1, price = $2, stock = $3, category_id = $4 WHERE id = $5`
 	result, err := repo.db.Exec(query, product.Name, product.Price, product.Stock, product.CategoryID, product.ID)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (repo *ProductRepository) Update(product *models.Product) error {
 }
 
 func (repo *ProductRepository) Delete(id int) error {
-	query := "DELETE FROM products WHERE id = $1"
+	query := `DELETE FROM "Product" WHERE id = $1`
 	result, err := repo.db.Exec(query, id)
 	if err != nil {
 		return err
