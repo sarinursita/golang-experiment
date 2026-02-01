@@ -30,9 +30,7 @@ func LoadConfig() (Config, error) {
 
 	if _, err := os.Stat(".env"); err == nil {
 		viper.SetConfigFile(".env")
-		if err := viper.ReadInConfig(); err != nil {
-			return Config{}, err
-		}
+		_ = viper.ReadInConfig() // Ignore error if .env doesn't exist
 	}
 
 	config := Config{
@@ -40,8 +38,16 @@ func LoadConfig() (Config, error) {
 		DBConn: viper.GetString("DB_CONN"),
 	}
 
+	// Fallback to os.Getenv if Viper fails to pick up from certain platforms
+	if config.DBConn == "" {
+		config.DBConn = os.Getenv("DB_CONN")
+	}
+
 	if config.Port == "" {
-		config.Port = "8080"
+		config.Port = os.Getenv("PORT")
+		if config.Port == "" {
+			config.Port = "8080"
+		}
 	}
 
 	return config, nil
@@ -56,10 +62,17 @@ func main() {
 		log.Printf("Gagal load config: %v\n", err)
 	}
 
+	// DEBUG: Pastikan DB_CONN kebaca (jangan print password!)
+	if config.DBConn == "" {
+		log.Println("WARNING: DB_CONN is empty!")
+	} else {
+		log.Printf("DB_CONN found (length: %d)\n", len(config.DBConn))
+	}
+
 	// 2. Setup Database
 	db, err := database.InitDB(config.DBConn)
 	if err != nil {
-		log.Fatal("Gagal inisialisasi database:", err)
+		log.Fatal("Gagal inisialisasi database: ", err)
 	}
 	defer db.Close()
 
