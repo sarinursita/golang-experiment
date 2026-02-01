@@ -8,3 +8,6 @@
 # Logs
 *.log
 
+
+.env
+/kasir-api/kasir-api.exe
